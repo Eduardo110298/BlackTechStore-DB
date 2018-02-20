@@ -1,0 +1,1 @@
+--This is the DDL code to make the relationships.
