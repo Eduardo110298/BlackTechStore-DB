@@ -3,8 +3,8 @@ This is the repository by the UDO students for allow them the develop for the da
 
 Members:
 
-Andrés Luna
-Eduardo Rodríguez
-Hilary Alzate
-Inés Natera
-Javier Rodríguez
+Andrés Luna.
+Eduardo Rodríguez.
+Hilary Alzate.
+Inés Natera.
+Javier Rodríguez.
