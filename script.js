@@ -1,6 +1,6 @@
-if (location.pathname == "/checkout/"){
+if (location.pathname == "/checkout/" && document.getElementsByClassName("login")[0]){
   //Removing checkout form.
-  var checkoutNode = document.getElementsByClassName("woocommerce")[1].children[2]
+  var checkoutNode = document.getElementsByClassName("checkout")[0]
   document.getElementsByClassName("woocommerce")[1].removeChild(checkoutNode)
 
   //Making up the container with info.
@@ -8,7 +8,7 @@ if (location.pathname == "/checkout/"){
   checkoutInfo.className = "woocommerce-info"
 
   //The toggle switch
-  var checkoutInfoLInk = document.createElement('A')
+  var checkoutInfoLink = document.createElement('A')
   checkoutInfoLink.href = "#"
   checkoutInfoLink.id = "checkoutInfoLink"
   checkoutInfoLink.innerText = "Or you can click here to continue and register"
@@ -28,6 +28,6 @@ if (location.pathname == "/checkout/"){
 
   //The slideToggle logic:
   jQuery("#checkoutInfoLink").click(function(){
-    jQuery("#checkoutNode").slideToggle(700);
+    jQuery("#checkoutNode").slideToggle(650);
   })
 }
