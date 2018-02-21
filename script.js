@@ -6,5 +6,3 @@ checkoutInfo.innerText = "Or you can"
 var checkoutInfoLInk = document.createElement('A')
 checkoutInfoLink.href = "#"
 checkoutInfoLink.id = "checkoutInfoLink"
-
-//Hola Ines estuvo aqui!
