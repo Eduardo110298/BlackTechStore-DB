@@ -29,7 +29,7 @@ CREATE VIEW vRepuesto
 	  ON u.codigo = rep.codigo
 	INNER JOIN orden ord
 	  ON ord.nro_orden = u.nro_orden
-	WHERE fechapendiente BETWEEN sysdate - 7 AND sysdate;
+	WHERE fusa.fecha BETWEEN sysdate - 7 AND sysdate;
 
 --Vista de las ventas web por aprobar
 CREATE VIEW vWebPorApro
