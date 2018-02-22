@@ -8,5 +8,15 @@ CREATE VIEW vEquipo
 	  on rep.nro_orden = ord.nro_orden
 	INNER JOIN pertenece_a pert 
 	  on pert.nro_orden = ord.nro_orden
-	Order by tecnico.cedula, orden.fec_ent ASC;
-	
+	ORDER BY tecnico.cedula, orden.fec_ent ASC;
+
+--Vista de los Reportes de los ingresos semanales obtenidos por tipo de reparacion 
+CREATE VIEW vIngresoTipos
+	AS equipo.tipo, SUM(factura.total)
+	from factura fac 
+	INNER JOIN pertenece_a pert
+	  on fac.nro_orden = pert.nro_orden
+	INNER JOIN equipo equ 
+	  on equ.serial = pert.serial
+	WHERE factura.fecha BETWEEN sysdate - 7 AND sysdate
+	GROUP BY (equipo.tipo);
