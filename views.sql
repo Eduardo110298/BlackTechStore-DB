@@ -28,4 +28,23 @@ CREATE VIEW vRepuesto
 	INNER JOIN usa u 
 	  ON u.codigo = rep.codigo
 	INNER JOIN orden ord
-	  ON ord.nro_orden = u.nro_orden;
+	  ON ord.nro_orden = u.nro_orden
+	WHERE fechapendiente BETWEEN sysdate - 7 AND sysdate;
+
+--Vista de las ventas web por aprobar
+CREATE VIEW vWebPorApro
+	AS SELECT nro_venta, referencia, estado, fecha, n_guia, monto_total, tipo_ret, medio_env, direccion
+	FROM venta_web
+	WHERE estado = "por aprobar";
+
+--Vista de las ventas web aprobadas
+CREATE VIEW vWebApro
+	AS SELECT nro_venta, referencia, estado, fecha, n_guia, monto_total, tipo_ret, medio_env, direccion
+	FROM venta_web
+	WHERE estado = "aprobadas";
+
+--Vista de las ventas web rechazadas
+CREATE VIEW vWebRech
+	AS SELECT nro_venta, referencia, estado, fecha, n_guia, monto_total, tipo_ret, medio_env, direccion
+	FROM venta_web
+	WHERE estado = "rechazadas";
