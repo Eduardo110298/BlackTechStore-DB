@@ -9,7 +9,7 @@
 CREATE INDEX repuesto_cant_existencia ON repuesto(nombre,cant_existencia); -- Indice para agilizar la busqueda de la existencia de repuestos
 
 
-CREATE INDEX equipo_estatus_equipo ON (); 
+CREATE INDEX reparacion_estatus_equipo ON reparacion(estatus); --
 
 
 CREATE INDEX estatus_orden ON orden(estatus);
