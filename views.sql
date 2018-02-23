@@ -33,18 +33,18 @@ CREATE VIEW vRepuesto
 
 --Vista de las ventas web por aprobar
 CREATE VIEW vWebPorApro
-	AS SELECT numero, estado, fecha, doc_id_cliente, monto_total, tipo_retiro, medio_envio, dir_envio, n_guia, fecha_envio
+	AS SELECT numero, estado, fecha, doc_id_cliente, monto_total, tipo_retiro, medio_envio, direccion_envio, numero_guia, fecha_envio
 	FROM venta_web
 	WHERE estado = "ESPERA";
 
 --Vista de las ventas web aprobadas
 CREATE VIEW vWebApro
-	AS SELECT numero, estado, fecha, doc_id_cliente, monto_total, tipo_retiro, medio_envio, dir_envio, n_guia, fecha_envio
+	AS SELECT numero, estado, fecha, doc_id_cliente, monto_total, tipo_retiro, medio_envio, direccion_envio, numero_guia, fecha_envio
 	FROM venta_web
 	WHERE estado = "CONFIRMADA";
 
 --Vista de las ventas web rechazadas
 CREATE VIEW vWebRech
-	AS SELECT numero, estado, fecha, doc_id_cliente, monto_total, tipo_retiro, medio_envio, dir_envio, n_guia, fecha_envio
+	AS SELECT numero, estado, fecha, doc_id_cliente, monto_total, tipo_retiro, medio_envio, direccion_envio, numero_guia, fecha_envio
 	FROM venta_web
 	WHERE estado = "RECHAZADA";
