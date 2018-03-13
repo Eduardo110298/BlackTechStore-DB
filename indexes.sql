@@ -8,5 +8,5 @@ CREATE INDEX repuesto_cant_existencia ON repuesto(nombre,cant_existencia);-- Ind
 
 CREATE INDEX orden_estatus ON orden(estatus); -- Indice para agilizar la busqueda del estado de la orden
 
-CREATE INDEX ventaWeb_estatus ON venta_web(estatus); -- Indice para agilizar la busqueda de los estados en las ventas web
+CREATE INDEX venta_web_estatus ON venta_web(estatus); -- Indice para agilizar la busqueda de los estados en las ventas web
 
