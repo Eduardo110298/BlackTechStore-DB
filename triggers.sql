@@ -124,11 +124,12 @@ CREATE OR REPLACE TRIGGER orden_actualizar_estado
   AFTER UPDATE ON reparacion
   FOR EACH ROW
 DECLARE
-  cant_rep integer;
+  cant_rep NUMBER;
 BEGIN
   SELECT COUNT(estado) INTO cant_rep FROM reparacion WHERE numero_orden = :OLD.numero_orden AND estado != 'TERMINADO';
-  IF cant_rep == 0 THEN
+  IF cant_rep = 0 THEN
     UPDATE orden SET estado = 'TERMINADO' WHERE  numero = :OLD.numero_orden;
+  END IF;
 END;
 /
 --ACTUALIZACION DE EL REPUESTO EN INVENTARIO CUANDO HACE UN INSERT EN USA
@@ -237,4 +238,3 @@ END;
 
 -- (...)
 
-/
