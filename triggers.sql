@@ -126,4 +126,18 @@ BEGIN
   UPDATE factura_venta SET total = total + :NEW.subtotal WHERE numero = :NEW.numero_factura_venta;
   UPDATE articulo SET cant_existencia = cant_existencia - :NEW.cantidad WHERE codigo = :NEW.codigo_articulo;
 END;
+
+--TRIGGERS PARA LA ACCION REFERENCIAL UPDATE EN LAS TABLAS
+
+--UPDATE DEL CODIGO DE LA MARCA EN LA TABLA MODELO
+CREATE OR REPLACE TRIGGER marca_foreign_key
+  AFTER UPDATE ON marca
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE modelo SET codigo_marca = :NEW.codigo WHERE codigo_marca = :OLD.codigo
+  END IF;
+END;
+
+
 -- (...)
