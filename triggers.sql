@@ -172,14 +172,12 @@ BEGIN
   END IF;
 END;
 
---UPDATE DEL CODIGO DEL HERRAMIENTA EN LA TABLA INCLUYE, POSEE Y ACTUALIZA_ARTICULO
+--UPDATE DEL CODIGO DEL HERRAMIENTA EN LA TABLA ACTUALIZA HERRAMIENTA
 CREATE OR REPLACE TRIGGER herramienta_foreign_key
   AFTER UPDATE ON herramienta
   FOR EACH ROW
 BEGIN
   IF :OLD.codigo != :NEW.codigo THEN
-    UPDATE incluye SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
-    UPDATE posee SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
     UPDATE actualiza_herramienta SET codigo_herramienta = :NEW.codigo WHERE codigo_herramienta = :OLD.codigo
   END IF;
 END;
