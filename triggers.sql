@@ -139,5 +139,50 @@ BEGIN
   END IF;
 END;
 
+--UPDATE DEL CODIGO DE LA MODELO EN LA TABLA EQUIPO
+CREATE OR REPLACE TRIGGER equipo_foreign_key
+  AFTER UPDATE ON modelo
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE equipo SET codigo_modelo = :NEW.codigo WHERE codigo_modelo= :OLD.codigo
+  END IF;
+END;
+
+--UPDATE DEL CODIGO DEL REPUESTO EN LA TABLA USA Y ACTUALIZA_REPUESTO
+CREATE OR REPLACE TRIGGER repuesto_foreign_key
+  AFTER UPDATE ON repuesto
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE usa SET codigo_respuesto = :NEW.codigo WHERE codigo_respuesto = :OLD.codigo
+    UPDATE actualiza_repuesto SET codigo_respuesto = :NEW.codigo WHERE codigo_respuesto = :OLD.codigo
+  END IF;
+END;
+
+--UPDATE DEL CODIGO DEL ARTICULO EN LA TABLA INCLUYE, POSEE Y ACTUALIZA_ARTICULO
+CREATE OR REPLACE TRIGGER articulo_foreign_key
+  AFTER UPDATE ON articulo
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE incluye SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
+    UPDATE posee SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
+    UPDATE actualiza_articulo SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
+  END IF;
+END;
+
+--UPDATE DEL CODIGO DEL HERRAMIENTA EN LA TABLA INCLUYE, POSEE Y ACTUALIZA_ARTICULO
+CREATE OR REPLACE TRIGGER herramienta_foreign_key
+  AFTER UPDATE ON herramienta
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE incluye SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
+    UPDATE posee SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
+    UPDATE actualiza_herramienta SET codigo_herramienta = :NEW.codigo WHERE codigo_herramienta = :OLD.codigo
+  END IF;
+END;
+--FIN DE LOS TRIGGERS PARA LAS ACCIONES REFLERENCIALES (ON UPDATE)
 
 -- (...)
