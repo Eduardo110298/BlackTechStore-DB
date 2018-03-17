@@ -127,6 +127,18 @@ BEGIN
   UPDATE articulo SET cant_existencia = cant_existencia - :NEW.cantidad WHERE codigo = :NEW.codigo_articulo;
 END;
 
+--TRIGGER PARA CAMBIO DE ESTADO DE LA ORDEN AL CAMBIAR TODAS LAS REPARACIONES DE LA MISMA A TERMINADO
+CREATE OR REPLACE TRIGGER orden_actualizar_estado
+  AFTER UPDATE ON reparacion
+  FOR EACH ROW
+DECLARE
+  cant_rep integer
+BEGIN
+  SELECT COUNT(estado) INTO cant_rep FROM reparacion WHERE numero_orden = :OLD.numero_orden AND estado != 'TERMINADO' 
+  IF cant_rep == 0 THEN
+    UPDATE orden SET estado = 'TERMINADO' WHERE  numero = :OLD.numero_orden
+END;
+
 --TRIGGERS PARA LA ACCION REFERENCIAL UPDATE EN LAS TABLAS
 
 --UPDATE DEL CODIGO DE LA MARCA EN LA TABLA MODELO
