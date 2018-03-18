@@ -169,14 +169,14 @@ END;
 -- END;
 
 -- --ACTUALIZACION DE EL RESPUESTO EN EL INVENTARIO CUANDO HACE UN UPDATE EN USA
--- --NO ESTA TERMINADOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
--- --NO ESTA TERMINADOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 -- CREATE OR REPLACE TRIGGER repuesto_actualizacion_inventario
 --   AFTER UPDATE ON usa
 --   FOR EACH ROW
+--DECLARE
+--  cantidad int
 -- BEGIN
 --   IF :NEW.cantidad > :OLD.cantidad
---   UPDATE articulo SET cant_existencia = :NEW.cantidad WHERE codigo = :OLD.codigo_repuesto
+--    UPDATE articulo SET cant_existencia = cant_existencia - (:NEW.cantidad - :OLD.cantidad) WHERE codigo = :OLD.codigo_repuesto
 -- END;
 
 -- --TRIGGERS PARA LA ACCION REFERENCIAL UPDATE EN LAS TABLAS
