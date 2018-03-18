@@ -172,12 +172,34 @@ END;
 -- CREATE OR REPLACE TRIGGER repuesto_actualizacion_inventario
 --   AFTER UPDATE ON usa
 --   FOR EACH ROW
---DECLARE
---  cantidad int
 -- BEGIN
 --   IF :NEW.cantidad > :OLD.cantidad
---    UPDATE articulo SET cant_existencia = cant_existencia - (:NEW.cantidad - :OLD.cantidad) WHERE codigo = :OLD.codigo_repuesto
+--    UPDATE repuesto SET cant_existencia = cant_existencia - (:NEW.cantidad - :OLD.cantidad) WHERE codigo = :OLD.codigo_repuesto
 -- END;
+
+-- -- ACTUALIZACION DEL SALDO EN CUENTA POR PAGAR CUANDO HAGA UN INSERT EN ABONO
+--CREATE OR REPLACE TRIGGER cuenta_por_cobrar_actualizacion_saldo
+--  AFTWE INSERT ON abono
+--  FOR EACH ROW
+--DECLARE
+--  cantidad_saldo NUMBER(10,2)
+--BEGIN
+--  SELECT saldo INTO cantidad_saldo FROM cuenta_por_pagar WHERE numero_factura_compra = :NEW.numero_factura_compra AND rif_proveedor = :NEW.rif_proveedor
+--  IF cantidad_saldo >= :NEW.monto -- EL SALDO DE LA CUENTA POR PAGAR NO PUEDE QUEDAR EN NEGATIVO
+--    UPDATE cuenta_por_pagar SET saldo = saldo - :NEW.monto WHERE numero_factura_compra = :NEW:numero_factura_compra AND rif_proveedor = :NEW.rif_proveedor
+--END;
+
+-- -- ACTUALIZACION DEL SALDO EN CUENTA POR COBRAR CUANDO HAGA UN INSERT EN PAGO
+--CREATE OR REPLACE TRIGGER cuenta_por_cobrar_actualizacion_saldo
+--  AFTWE INSERT ON pago
+--  FOR EACH ROW
+--DECLARE
+--  cantidad_saldo NUMBER(10,2)
+--BEGIN
+--  SELECT saldo INTO cantidad_saldo FROM cuenta_por_cobrar WHERE numero_factura_venta = :NEW.numero_factura_venta
+--  IF cantidad_saldo >= :NEW.monto -- EL SALDO DE LA CUENTA POR COBRAR NO PUEDE QUEDAR EN NEGATIVO
+--    UPDATE cuenta_por_cobrar SET saldo = saldo - :NEW.monto WHERE numero_factura_venta = :NEW:numero_factura_venta
+--END;
 
 -- --TRIGGERS PARA LA ACCION REFERENCIAL UPDATE EN LAS TABLAS
 
