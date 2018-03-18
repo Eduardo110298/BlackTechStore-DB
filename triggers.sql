@@ -63,7 +63,6 @@ BEGIN
 END;
 /
 --Triggers for company constraints
-
 CREATE OR REPLACE TRIGGER detalles_fv_trigger
   AFTER INSERT ON incluye
   FOR EACH ROW
