@@ -71,6 +71,7 @@ BEGIN
   UPDATE articulo SET cant_existencia = cant_existencia - :NEW.cantidad WHERE codigo = :NEW.codigo_articulo;
 END;
 /
+
 CREATE OR REPLACE TRIGGER detalles_fc_art_trigger
   AFTER INSERT ON actualiza_articulo
   FOR EACH ROW
