@@ -112,151 +112,134 @@ BEGIN
   UPDATE herramienta SET costo = :new.costo WHERE codigo = :NEW.codigo_herramienta; 
 END;
 /
-CREATE OR REPLACE TRIGGER uso_repuesto_trigger
+CREATE OR REPLACE TRIGGER uso_rep_insert_trigger
   AFTER INSERT ON usa
   FOR EACH ROW
 BEGIN
   UPDATE repuesto SET cant_existencia = cant_existencia - :NEW.cantidad WHERE codigo = :NEW.codigo_repuesto;
 END;
 /
+--ACTUALIZACION DE EL RESPUESTO EN EL INVENTARIO CUANDO HACE UN UPDATE EN USA
+CREATE OR REPLACE TRIGGER uso_rep_update_trigger
+  AFTER UPDATE ON usa
+  FOR EACH ROW
+BEGIN
+  IF :NEW.cantidad > :OLD.cantidad THEN
+   UPDATE repuesto SET cant_existencia = cant_existencia - (:NEW.cantidad - :OLD.cantidad) WHERE codigo = :OLD.codigo_repuesto;
+  ELSE
+    UPDATE repuesto SET cant_existencia = cant_existencia + (:NEW.cantidad - :OLD.cantidad) WHERE codigo = :OLD.codigo_repuesto;
+  END IF;
+END;
+/
 --TRIGGER PARA CAMBIO DE ESTADO DE LA ORDEN AL CAMBIAR TODAS LAS REPARACIONES DE LA MISMA A TERMINADO
-CREATE OR REPLACE TRIGGER orden_actualizar_estado
+CREATE OR REPLACE TRIGGER orden_estado_trigger
   AFTER UPDATE ON reparacion
   FOR EACH ROW
 DECLARE
   cant_rep NUMBER;
 BEGIN
-  SELECT COUNT(estado) INTO cant_rep FROM reparacion WHERE numero_orden = :OLD.numero_orden AND estado != 'TERMINADO';
-  IF cant_rep = 0 THEN
-    UPDATE orden SET estado = 'TERMINADO' WHERE  numero = :OLD.numero_orden;
+  IF (:NEW.estado != :OLD.estado) AND :NEW.estado = 'TERMINADO' THEN
+    SELECT COUNT(estado) INTO cant_rep FROM reparacion WHERE numero_orden = :OLD.numero_orden AND estado != 'TERMINADO';
+    IF cant_rep = 0 THEN
+      UPDATE orden SET estado = 'TERMINADO' WHERE numero = :OLD.numero_orden;
+    END IF;
   END IF;
 END;
 /
---ACTUALIZACION DE EL REPUESTO EN INVENTARIO CUANDO HACE UN INSERT EN USA
-CREATE OR REPLACE TRIGGER rep_act_inventario
-  AFTER INSERT ON usa
+
+--POR REVISAR
+
+--ACTUALIZACION DEL ARTICULO EN INVENTARIO EN VENTA WEB
+CREATE OR REPLACE TRIGGER articulo_venta_web
+  AFTER INSERT ON posee
   FOR EACH ROW
 BEGIN
-  UPDATE repuesto SET cant_existencia = cant_existencia - :NEW.cantidad WHERE codigo = :OLD.codigo_repuesto;
+  UPDATE articulo SET cant_existencia = cant_existencia - :NEW.cantidad WHERE codigo = :OLD.codigo_articulo;
 END;
 /
 
+-- ACTUALIZACION DEL SALDO EN CUENTA POR PAGAR CUANDO HAGA UN INSERT EN ABONO
+CREATE OR REPLACE TRIGGER cuenta_por_pagar_saldo
+ AFTER INSERT ON abono
+ FOR EACH ROW
+DECLARE
+ cantidad_saldo NUMBER(10,2);
+BEGIN
+ SELECT saldo INTO cantidad_saldo FROM cuenta_por_pagar WHERE numero_factura_compra = :NEW.numero_factura_compra AND rif_proveedor = :NEW.rif_proveedor;
+ IF cantidad_saldo >= :NEW.monto THEN
+   UPDATE cuenta_por_pagar SET saldo = saldo - :NEW.monto WHERE numero_factura_compra = :NEW.numero_factura_compra AND rif_proveedor = :NEW.rif_proveedor;
+ END IF;
+END;
+/
+-- ACTUALIZACION DEL SALDO EN CUENTA POR COBRAR CUANDO HAGA UN INSERT EN PAGO
+CREATE OR REPLACE TRIGGER cuenta_por_cobrar_saldo
+ AFTER INSERT ON pago
+ FOR EACH ROW
+DECLARE
+ cantidad_saldo NUMBER(10,2);
+BEGIN
+  SELECT saldo INTO cantidad_saldo FROM cuenta_por_cobrar WHERE numero_factura_venta = :NEW.numero_factura_venta;
+  IF cantidad_saldo >= :NEW.monto THEN
+   UPDATE cuenta_por_cobrar SET saldo = saldo - :NEW.monto WHERE numero_factura_venta = :NEW.numero_factura_venta;
+  END IF;
+END;
+/
+--TRIGGERS PARA LA ACCION REFERENCIAL UPDATE EN LAS TABLAS
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- --ACTUALIZACION DE EL ARTICULO EN INVENTARIO EN VENTA WEB
--- CREATE OR REPLACE TRIGGER articulo_actualizacion_inventario
---   AFTER INSERT ON posee
---   FOR EACH ROW
--- BEGIN
---   UPDATE articulo SET cant_existencia = cant_existencia - :NEW.cantidad WHERE codigo = :OLD.codigo_articulo;
--- END;
-
--- --ACTUALIZACION DE EL RESPUESTO EN EL INVENTARIO CUANDO HACE UN UPDATE EN USA
--- CREATE OR REPLACE TRIGGER repuesto_actualizacion_inventario
---   AFTER UPDATE ON usa
---   FOR EACH ROW
--- BEGIN
---   IF :NEW.cantidad > :OLD.cantidad
---    UPDATE repuesto SET cant_existencia = cant_existencia - (:NEW.cantidad - :OLD.cantidad) WHERE codigo = :OLD.codigo_repuesto
--- END;
-
--- -- ACTUALIZACION DEL SALDO EN CUENTA POR PAGAR CUANDO HAGA UN INSERT EN ABONO
---CREATE OR REPLACE TRIGGER cuenta_por_cobrar_actualizacion_saldo
---  AFTWE INSERT ON abono
---  FOR EACH ROW
---DECLARE
---  cantidad_saldo NUMBER(10,2)
---BEGIN
---  SELECT saldo INTO cantidad_saldo FROM cuenta_por_pagar WHERE numero_factura_compra = :NEW.numero_factura_compra AND rif_proveedor = :NEW.rif_proveedor
---  IF cantidad_saldo >= :NEW.monto -- EL SALDO DE LA CUENTA POR PAGAR NO PUEDE QUEDAR EN NEGATIVO
---    UPDATE cuenta_por_pagar SET saldo = saldo - :NEW.monto WHERE numero_factura_compra = :NEW:numero_factura_compra AND rif_proveedor = :NEW.rif_proveedor
---END;
-
--- -- ACTUALIZACION DEL SALDO EN CUENTA POR COBRAR CUANDO HAGA UN INSERT EN PAGO
---CREATE OR REPLACE TRIGGER cuenta_por_cobrar_actualizacion_saldo
---  AFTWE INSERT ON pago
---  FOR EACH ROW
---DECLARE
---  cantidad_saldo NUMBER(10,2)
---BEGIN
---  SELECT saldo INTO cantidad_saldo FROM cuenta_por_cobrar WHERE numero_factura_venta = :NEW.numero_factura_venta
---  IF cantidad_saldo >= :NEW.monto -- EL SALDO DE LA CUENTA POR COBRAR NO PUEDE QUEDAR EN NEGATIVO
---    UPDATE cuenta_por_cobrar SET saldo = saldo - :NEW.monto WHERE numero_factura_venta = :NEW:numero_factura_venta
---END;
-
--- --TRIGGERS PARA LA ACCION REFERENCIAL UPDATE EN LAS TABLAS
-
--- --UPDATE DEL CODIGO DE LA MARCA EN LA TABLA MODELO
--- CREATE OR REPLACE TRIGGER marca_foreign_key
---   AFTER UPDATE ON marca
---   FOR EACH ROW
--- BEGIN
---   IF :OLD.codigo != :NEW.codigo THEN
---     UPDATE modelo SET codigo_marca = :NEW.codigo WHERE codigo_marca = :OLD.codigo
---   END IF;
--- END;
-
--- --UPDATE DEL CODIGO DE LA MODELO EN LA TABLA EQUIPO
--- CREATE OR REPLACE TRIGGER equipo_foreign_key
---   AFTER UPDATE ON modelo
---   FOR EACH ROW
--- BEGIN
---   IF :OLD.codigo != :NEW.codigo THEN
---     UPDATE equipo SET codigo_modelo = :NEW.codigo WHERE codigo_modelo= :OLD.codigo
---   END IF;
--- END;
-
--- --UPDATE DEL CODIGO DEL REPUESTO EN LA TABLA USA Y ACTUALIZA_REPUESTO
--- CREATE OR REPLACE TRIGGER repuesto_foreign_key
---   AFTER UPDATE ON repuesto
---   FOR EACH ROW
--- BEGIN
---   IF :OLD.codigo != :NEW.codigo THEN
---     UPDATE usa SET codigo_respuesto = :NEW.codigo WHERE codigo_respuesto = :OLD.codigo
---     UPDATE actualiza_repuesto SET codigo_respuesto = :NEW.codigo WHERE codigo_respuesto = :OLD.codigo
---   END IF;
--- END;
-
--- --UPDATE DEL CODIGO DEL ARTICULO EN LA TABLA INCLUYE, POSEE Y ACTUALIZA_ARTICULO
--- CREATE OR REPLACE TRIGGER articulo_foreign_key
---   AFTER UPDATE ON articulo
---   FOR EACH ROW
--- BEGIN
---   IF :OLD.codigo != :NEW.codigo THEN
---     UPDATE incluye SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
---     UPDATE posee SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
---     UPDATE actualiza_articulo SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo
---   END IF;
--- END;
-
--- --UPDATE DEL CODIGO DEL HERRAMIENTA EN LA TABLA ACTUALIZA HERRAMIENTA
--- CREATE OR REPLACE TRIGGER herramienta_foreign_key
---   AFTER UPDATE ON herramienta
---   FOR EACH ROW
--- BEGIN
---   IF :OLD.codigo != :NEW.codigo THEN
---     UPDATE actualiza_herramienta SET codigo_herramienta = :NEW.codigo WHERE codigo_herramienta = :OLD.codigo
---   END IF;
--- END;
--- --FIN DE LOS TRIGGERS PARA LAS ACCIONES REFLERENCIALES (ON UPDATE)
+--UPDATE DEL CODIGO DE LA MARCA EN LA TABLA MODELO
+CREATE OR REPLACE TRIGGER marca_foreign_key
+  AFTER UPDATE ON marca
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE modelo SET codigo_marca = :NEW.codigo WHERE codigo_marca = :OLD.codigo;
+  END IF;
+END;
+/
+--UPDATE DEL CODIGO DE LA MODELO EN LA TABLA EQUIPO
+CREATE OR REPLACE TRIGGER equipo_foreign_key
+  AFTER UPDATE ON modelo
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE equipo SET codigo_modelo = :NEW.codigo WHERE codigo_modelo= :OLD.codigo;
+  END IF;
+END;
+/
+--UPDATE DEL CODIGO DEL REPUESTO EN LA TABLA USA Y ACTUALIZA_REPUESTO
+CREATE OR REPLACE TRIGGER repuesto_foreign_key
+  AFTER UPDATE ON repuesto
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE usa SET codigo_repuesto = :NEW.codigo WHERE codigo_repuesto = :OLD.codigo;
+    UPDATE actualiza_repuesto SET codigo_repuesto = :NEW.codigo WHERE codigo_repuesto = :OLD.codigo;
+  END IF;
+END;
+/
+--UPDATE DEL CODIGO DEL ARTICULO EN LA TABLA INCLUYE, POSEE Y ACTUALIZA_ARTICULO
+CREATE OR REPLACE TRIGGER articulo_foreign_key
+  AFTER UPDATE ON articulo
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE incluye SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo;
+    UPDATE posee SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo;
+    UPDATE actualiza_articulo SET codigo_articulo = :NEW.codigo WHERE codigo_articulo = :OLD.codigo;
+  END IF;
+END;
+/
+--UPDATE DEL CODIGO DEL HERRAMIENTA EN LA TABLA ACTUALIZA HERRAMIENTA
+CREATE OR REPLACE TRIGGER herramienta_foreign_key
+  AFTER UPDATE ON herramienta
+  FOR EACH ROW
+BEGIN
+  IF :OLD.codigo != :NEW.codigo THEN
+    UPDATE actualiza_herramienta SET codigo_herramienta = :NEW.codigo WHERE codigo_herramienta = :OLD.codigo;
+  END IF;
+END;
+/
+--FIN DE LOS TRIGGERS PARA LAS ACCIONES REFLERENCIALES (ON UPDATE)
 
 -- (...)
 
