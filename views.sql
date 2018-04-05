@@ -1,23 +1,22 @@
 --Vista de emitir reporte de los equipos asignados a los tecnicos y el estatus de la orden ordenado por tecnico y fecha de recepcion
 CREATE VIEW vEquipo 
-	AS SELECT tec.cedula, tec.nombre, ord.fecha_entrada, pert.serial_equipo, ord.estado 
-	FROM empleado_tecnico tec 
-	INNER JOIN reparacion rep 
-	  ON tec.cedula = tec.cedula
-	INNER JOIN orden ord
-	  ON rep.numero_orden = ord.numero
-	INNER JOIN pertenece_a pert 
-	  ON pert.numero_orden = ord.numero
-	ORDER BY tec.cedula ASC, ord.fecha_entrada ASC;
+	AS   SELECT tecnico.cedula, tecnico.nombre, orden.fecha_entrada, orden.serial, orden.estado
+  	FROM tecnico tec INNER JOIN reparacion rep 
+  		ON rep.cedula_tecnico = tec.cedula
+  	INNER JOIN orden ord
+  		ON rep.numero_orden = ord.numero
+  	GROUP BY tecnico.cedula ASC, 
+  	ORDER BY orden.fecha_entrada ASC;
+
 
 --Vista de los Reportes de los ingresos semanales obtenidos por tipo de reparacion 
 CREATE VIEW vIngresoTipos
 	AS SELECT equ.tipo, SUM(fac.total) AS INGRESO_SEMANAL
 	FROM factura_venta fac 
-	INNER JOIN pertenece_a pert
-	  ON fac.numero_orden = pert.numero_orden
+	INNER JOIN orden ord
+	  ON fac.numero_orden = ord.numero_orden
 	INNER JOIN equipo equ 
-	  ON equ.serial_equipo = pert.serial_equipo
+	  ON equ.serial_equipo = ord.serial_equipo
 	WHERE fac.fecha BETWEEN sysdate - 7 AND sysdate
 	GROUP BY equ.tipo;
 
